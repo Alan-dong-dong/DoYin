@@ -1,0 +1,2 @@
+"""DoYin backend application package."""
+

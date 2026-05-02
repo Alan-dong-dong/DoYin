@@ -1,0 +1,26 @@
+{
+  "name": "doyin-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "verify:feed-presentation": "node --experimental-strip-types --experimental-transform-types ./scripts/verify-feed-presentation.ts"
+  },
+  "dependencies": {
+    "hls.js": "^1.6.15",
+    "pinia": "^3.0.3",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vue-tsc": "^2.2.10"
+  }
+}

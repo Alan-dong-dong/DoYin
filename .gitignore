@@ -1,0 +1,51 @@
+# Local environment
+.env
+.env.local
+.env.*.local
+.env.example
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python cache and virtualenvs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node dependencies and builds
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Browser automation and generated output
+.playwright-cli/
+output/
+/openspec/
+
+# Local media and smoke artifacts
+/douyinViode/
+/storage/smoke/
+/storage/avatars/*
+!/storage/avatars/.gitkeep
+/storage/covers/*
+!/storage/covers/.gitkeep
+/storage/hls/*
+!/storage/hls/.gitkeep
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+
+# Databases and logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Local Codex files
+/.codex/

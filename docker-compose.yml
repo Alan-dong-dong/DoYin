@@ -1,0 +1,97 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: doyin-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-doyin}
+      POSTGRES_USER: ${POSTGRES_USER:-doyin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-doyin}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-doyin} -d ${POSTGRES_DB:-doyin}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: doyin-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_NAME: DoYin API
+      APP_ENV: development
+      APP_HOST: 0.0.0.0
+      APP_PORT: ${BACKEND_PORT:-8000}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-doyin}
+      POSTGRES_USER: ${POSTGRES_USER:-doyin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-doyin}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-doyin}:${POSTGRES_PASSWORD:-doyin}@postgres:5432/${POSTGRES_DB:-doyin}
+      FFMPEG_BINARY: ${FFMPEG_BINARY:-ffmpeg}
+      STORAGE_ROOT: /app/storage
+      UPLOADS_DIR: /app/storage/uploads
+      HLS_DIR: /app/storage/hls
+      COVERS_DIR: /app/storage/covers
+      AVATARS_DIR: /app/storage/avatars
+      HLS_PUBLIC_PATH: ${HLS_PUBLIC_PATH:-/media/hls}
+      COVERS_PUBLIC_PATH: ${COVERS_PUBLIC_PATH:-/media/covers}
+      CORS_ORIGINS: http://localhost:${FRONTEND_PORT:-5173},http://127.0.0.1:${FRONTEND_PORT:-5173}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/app
+      - ./storage:/app/storage
+    command:
+      [
+        "uvicorn",
+        "app.main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload",
+      ]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: doyin-frontend
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      VITE_APP_NAME: DoYin
+      VITE_API_BASE_URL: http://localhost:${BACKEND_PORT:-8000}
+      VITE_API_HEALTH_PATH: /api/health
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    command:
+      [
+        "sh",
+        "-c",
+        "npm install && npm run dev -- --host 0.0.0.0 --port 5173",
+      ]
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  frontend-node-modules:
